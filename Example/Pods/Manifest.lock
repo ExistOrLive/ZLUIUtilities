@@ -1,0 +1,16 @@
+PODS:
+  - ZLUIUtilities (0.1.0)
+
+DEPENDENCIES:
+  - ZLUIUtilities (from `../`)
+
+EXTERNAL SOURCES:
+  ZLUIUtilities:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  ZLUIUtilities: 8fd5678bc8c9e3143a6bf44d014eebe76dbf8da1
+
+PODFILE CHECKSUM: 0aec8e562db656bf9fb15092c8f57048677175a8
+
+COCOAPODS: 1.11.2
