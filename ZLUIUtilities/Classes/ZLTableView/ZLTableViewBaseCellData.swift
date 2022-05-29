@@ -52,11 +52,11 @@ open class ZLTableViewBaseSectionData: ZLBaseViewModel,ZLTableViewSectionProtoco
     }
     
     open var sectionHeaderHeight: CGFloat {
-        0
+        CGFloat.leastNonzeroMagnitude
     }
     
     open var sectionFooterHeight: CGFloat {
-        0
+        CGFloat.leastNonzeroMagnitude
     }
     
     open  var sectionHeaderReuseIdentifier: String? {
@@ -75,6 +75,14 @@ open class ZLTableViewBaseSectionData: ZLBaseViewModel,ZLTableViewSectionProtoco
         _cellDatas.append(contentsOf: cellDatas)
     }
     
+    open override func removeFromSuperViewModel() {
+        for cellData in cellDatas {
+            if let viewModel = cellData as? ZLBaseViewModel {
+                viewModel.removeFromSuperViewModel()
+            }
+        }
+        super.removeFromSuperViewModel()
+    }
     
 }
 

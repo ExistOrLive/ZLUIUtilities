@@ -45,16 +45,16 @@ import MBProgressHUD
     private func setupUI() {
         backgroundColor = UIColor(named: "ZLVCBackColor")
         addSubview(containerView)
-        containerView.addSubview(tagLabel)
+        containerView.addSubview(tagImageView)
         containerView.addSubview(descLabel)
         
-        tagLabel.snp.makeConstraints({ (make) in
+        tagImageView.snp.makeConstraints({ (make) in
             make.size.equalTo(CGSize.init(width: 70, height: 60))
             make.top.left.right.equalToSuperview()
         })
         
         descLabel.snp.makeConstraints({(make) in
-            make.top.equalTo(tagLabel.snp.bottom).offset(15)
+            make.top.equalTo(tagImageView.snp.bottom).offset(15)
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview()
         })
@@ -64,13 +64,12 @@ import MBProgressHUD
         }
     }
     
-    private lazy var tagLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = ZLRGBValue_H(colorValue: 0x999999)
-        label.textAlignment = .center
-//        label.font = .zlIconFont(withSize: 45)
-//        label.text = ZLIconFont.NoData.rawValue
-        return label
+    private lazy var tagImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.backgroundColor = .clear
+        imageView.contentMode = .center
+        imageView.image = ZLViewStatusPresenter.NoDataImageBlock?()
+        return imageView
     }()
     
     private lazy var descLabel: UILabel = {

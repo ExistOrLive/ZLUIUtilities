@@ -109,14 +109,20 @@ extension ZLTableContainerView: UITableViewDelegate {
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let reuseIdentifier = sectionDatas[section].sectionHeaderReuseIdentifier {
-           return tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier)
+            let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier)
+            if let updatable = view as? ZLViewUpdatable {
+                updatable.fillWithData(data: sectionDatas[section])
+            }
         }
         return nil
     }
 
     public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         if let reuseIdentifier = sectionDatas[section].sectionFooterReuseIdentifier {
-           return tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier)
+            let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier)
+            if let updatable = view as? ZLViewUpdatable {
+                updatable.fillWithData(data: sectionDatas[section])
+            }
         }
         return nil
     }
@@ -179,6 +185,10 @@ public extension ZLTableContainerView {
         tableView.register(cellClass, forCellReuseIdentifier: identifier)
     }
     
+    func register(_ viewClass: AnyClass?, forViewReuseIdentifier identifier: String) {
+        tableView.register(viewClass, forHeaderFooterViewReuseIdentifier: identifier)
+    }
+    
     func setTableViewHeader() {
         setRefreshView(type: .header)
     }
@@ -187,6 +197,50 @@ public extension ZLTableContainerView {
         setRefreshView(type: .footer)
         hiddenRefreshView(type: .footer)
     }
+    
+    
+    func resetSectionDatas(sectionDatas: [ZLTableViewSectionProtocol], hasMoreData: Bool) {
+        
+        self.sectionDatas = sectionDatas
+        
+        endRefreshView(type: .header)
+        if !hasMoreData {
+            endRefreshFooterWithNoMoreData()
+        } else {
+            resetRefreshFooter()
+            endRefreshView(type: .footer)
+        }
+        
+        if sectionDatas.isEmpty {
+            hiddenRefreshView(type: .footer)
+        } else {
+            showRefreshView(type: .footer)
+        }
+        viewStatus = sectionDatas.isEmpty ? .empty : .normal
+        
+        tableView.reloadData()
+    }
+    
+    func appendSectionDatas(sectionDatas: [ZLTableViewSectionProtocol], hasMoreData: Bool) {
+        
+        self.sectionDatas.append(contentsOf: sectionDatas)
+        
+        if !hasMoreData {
+            endRefreshFooterWithNoMoreData()
+        } else {
+            endRefreshView(type: .footer)
+        }
+        
+        if sectionDatas.isEmpty {
+            hiddenRefreshView(type: .footer)
+        } else {
+            showRefreshView(type: .footer)
+        }
+        viewStatus = sectionDatas.isEmpty ? .empty : .normal
+        
+        self.tableView.reloadData()
+    }
+    
     
     func resetCellDatas(cellDatas: [ZLTableViewCellProtocol], hasMoreData: Bool) {
         if !cellDatas.isEmpty {
@@ -269,8 +323,7 @@ public extension ZLTableContainerView {
     }
 
     func justRefresh() {
-        ZLRefresh.justRefreshHeader(header: self.tableView.mj_header as? MJRefreshNormalHeader)
-        ZLRefresh.justRefreshFooter(footer: self.tableView.mj_footer as? MJRefreshAutoStateFooter)
+        self.justReloadRefreshView()
         self.tableView.reloadData()
     }
 

@@ -18,7 +18,6 @@ import ZLBaseExtension
 }
 
 // MARK: ZLViewStatusProtocol
-
 public protocol ZLViewStatusProtocol {
     
     var targetView: UIView { get }
@@ -88,5 +87,14 @@ public extension ZLViewStatusProtocol where Self : UIView {
     
 }
 
+
+@objcMembers public class ZLViewStatusPresenter: NSObject {
+    
+    public static func set(noDataImageBlock: @escaping () -> UIImage ) {
+        ZLViewStatusPresenter.NoDataImageBlock = noDataImageBlock
+    }
+
+    static var NoDataImageBlock: (() -> UIImage)?
+}
 
 

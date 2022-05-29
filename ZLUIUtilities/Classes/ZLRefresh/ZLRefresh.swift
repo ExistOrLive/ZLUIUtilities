@@ -77,6 +77,11 @@ public extension ZLRefreshProtocol {
         scrollView.mj_footer?.resetNoMoreData()
     }
     
+    
+    func justReloadRefreshView() {
+        ZLRefresh.justRefreshFooter(footer: scrollView.mj_footer as? MJRefreshAutoStateFooter)
+        ZLRefresh.justRefreshHeader(header: scrollView.mj_header as? MJRefreshNormalHeader)
+    }
 }
 
 
