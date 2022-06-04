@@ -10,9 +10,11 @@ import Foundation
 import UIKit
 
 // MARK: ZLViewUpdatable
-public protocol ZLViewUpdatable {
+public protocol ZLViewUpdatable: AnyObject {
         
     func fillWithData(data: Any)
+    
+    func justUpdateView()
 }
 
 // MARK: ZLViewUpdatableForView

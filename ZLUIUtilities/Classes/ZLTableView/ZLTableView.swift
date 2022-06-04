@@ -111,7 +111,13 @@ extension ZLTableContainerView: UITableViewDelegate {
         if let reuseIdentifier = sectionDatas[section].sectionHeaderReuseIdentifier {
             let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier)
             if let updatable = view as? ZLViewUpdatable {
-                updatable.fillWithData(data: sectionDatas[section])
+               
+                let data = sectionDatas[section]
+                updatable.fillWithData(data: data)
+                
+                if let updatableData = data as? ZLViewUpdatableDataModel {
+                    updatableData.setViewUpdatable(updatable)
+                }
             }
         }
         return nil
@@ -121,7 +127,13 @@ extension ZLTableContainerView: UITableViewDelegate {
         if let reuseIdentifier = sectionDatas[section].sectionFooterReuseIdentifier {
             let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier)
             if let updatable = view as? ZLViewUpdatable {
-                updatable.fillWithData(data: sectionDatas[section])
+                
+                let data = sectionDatas[section]
+                updatable.fillWithData(data: data)
+                
+                if let updatableData = data as? ZLViewUpdatableDataModel {
+                    updatableData.setViewUpdatable(updatable)
+                }
             }
         }
         return nil
@@ -148,6 +160,10 @@ extension ZLTableContainerView: UITableViewDataSource {
 
         if let updatable = tableViewCell as? ZLViewUpdatable {
             updatable.fillWithData(data: tableViewCellData)
+            
+            if let updatableData = tableViewCellData as? ZLViewUpdatableDataModel {
+                updatableData.setViewUpdatable(updatable)
+            }
         }
         return tableViewCell
     }
@@ -329,6 +345,26 @@ public extension ZLTableContainerView {
 
     func reloadData() {
         self.tableView.reloadData()
+    }
+    
+    var tableViewFooter: UIView? {
+        get {
+            tableView.tableFooterView
+        }
+        
+        set{
+            tableView.tableFooterView = newValue
+        }
+    }
+    
+    var tableViewHeader: UIView? {
+        get {
+            tableView.tableHeaderView
+        }
+        
+        set{
+            tableView.tableHeaderView = newValue
+        }
     }
     
 }
