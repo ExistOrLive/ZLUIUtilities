@@ -10,7 +10,7 @@ import Foundation
 import ZLBaseExtension
 import MBProgressHUD
 
-@objc class ZLViewStatusTipView: UIView {
+@objc public class ZLViewStatusTipView: UIView {
     
     @objc override init(frame: CGRect) {
         super.init(frame: frame)
@@ -19,27 +19,6 @@ import MBProgressHUD
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    func showPlaceholderView() {
-        ZLProgressHUD.dismiss(view: self, animated: false)
-        let subViews = self.subviews
-        for view in subViews {
-            if view is MBProgressHUD {
-                view.removeFromSuperview()
-            }
-        }
-        containerView.isHidden = false
-    }
-    
-    func showProgressView() {
-        if !subviews.contains(where: { view in
-            view is MBProgressHUD
-        }) {
-            ZLProgressHUD.show(view: self, animated: false)
-        }
-        
-        containerView.isHidden = true
     }
     
     private func setupUI() {

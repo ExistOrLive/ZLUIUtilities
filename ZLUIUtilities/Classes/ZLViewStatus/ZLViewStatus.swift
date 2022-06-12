@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import ZLBaseExtension
+import ZLBaseUI
 
 @objc public enum ZLViewStatus: Int {
     case loading = 0
@@ -18,7 +19,7 @@ import ZLBaseExtension
 }
 
 // MARK: ZLViewStatusProtocol
-public protocol ZLViewStatusProtocol {
+public protocol ZLViewStatusProtocol: AnyObject {
     
     var targetView: UIView { get }
     var viewStatus: ZLViewStatus { get set }
@@ -26,30 +27,43 @@ public protocol ZLViewStatusProtocol {
 
 private var viewStatusContext: UInt8 = 0
 private var tipViewContext: UInt8 = 0
-
+private var progressViewContext: UInt8 = 0
 
 // MARK: ZLViewStatusProtocol + UIView
-public extension ZLViewStatusProtocol where Self : UIView {
+public extension ZLViewStatusProtocol where Self: UIView {
+    var targetView: UIView { self }
+}
 
-    var targetView: UIView {
-        self
-    }
-    
+// MARK: ZLViewStatusProtocol + UIViewController
+public extension ZLViewStatusProtocol where Self: UIViewController {
+    var targetView: UIView { self.view }
+}
+
+// MARK: ZLViewStatusProtocol + ZLBaseViewController
+public extension ZLViewStatusProtocol where Self: ZLBaseViewController {
+    var targetView: UIView { self.contentView }
+}
+
+
+// MARK: ZLViewStatusProtocol Extension
+public extension ZLViewStatusProtocol {
+
     var viewStatus: ZLViewStatus {
         set{
             objc_setAssociatedObject(self, &viewStatusContext, newValue, .OBJC_ASSOCIATION_ASSIGN)
             switch newValue {
             case .normal:
                 hideTipView()
+                hideProgressView()
             case .empty:
+                hideProgressView()
                 showTipView()
-                tipView.showPlaceholderView()
             case .loading:
-                showTipView()
-                tipView.showProgressView()
+                hideTipView()
+                showProgressView()
             case .error:
+                hideProgressView()
                 showTipView()
-                tipView.showPlaceholderView()
             }
         }
         get{
@@ -60,7 +74,7 @@ public extension ZLViewStatusProtocol where Self : UIView {
         }
     }
     
-    private var tipView: ZLViewStatusTipView {
+   var tipView: ZLViewStatusTipView {
         guard let tipView = objc_getAssociatedObject(self, &tipViewContext) as? ZLViewStatusTipView else {
             let tipView = ZLViewStatusTipView()
             objc_setAssociatedObject(self, &tipViewContext, tipView, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -69,8 +83,16 @@ public extension ZLViewStatusProtocol where Self : UIView {
         return tipView
     }
     
-    private func showTipView() {
-        
+    var progressView: ZLViewStatusProgressView {
+        guard let progressView = objc_getAssociatedObject(self, &progressViewContext) as? ZLViewStatusProgressView else {
+            let progressView = ZLViewStatusProgressView()
+            objc_setAssociatedObject(self, &progressViewContext, progressView, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            return progressView
+        }
+        return progressView
+    }
+    
+    func showTipView() {
         if tipView.superview == nil {
             targetView.addSubview(tipView)
             tipView.snp.makeConstraints { make in
@@ -81,8 +103,40 @@ public extension ZLViewStatusProtocol where Self : UIView {
         targetView.bringSubviewToFront(tipView)
     }
     
-    private func hideTipView() {
+    func hideTipView() {
         tipView.removeFromSuperview()
+    }
+    
+    func showProgressView() {
+        if let scrollView = targetView as? UIScrollView {
+            
+            if progressView.superview == nil{
+                scrollView.addSubview(progressView)
+                progressView.snp.makeConstraints { make in
+                    make.edges.equalTo(scrollView.frameLayoutGuide)
+                }
+            }
+            progressView.showProgressView()
+            scrollView.bringSubviewToFront(progressView)
+            
+        } else {
+            
+            if progressView.superview == nil {
+                targetView.addSubview(progressView)
+                progressView.snp.makeConstraints { make in
+                    make.center.equalToSuperview()
+                    make.size.equalToSuperview()
+                }
+            }
+            progressView.showProgressView()
+            targetView.bringSubviewToFront(progressView)
+        }
+        
+    }
+    
+    func hideProgressView() {
+        progressView.hiddenProgressView()
+        progressView.removeFromSuperview()
     }
     
 }
