@@ -62,7 +62,7 @@ public class ZLTableContainerView: UIView {
     }
 
     // view
-    private lazy var tableView: UITableView = {
+    public private(set) lazy var tableView: UITableView = {
         let tableView = UITableView.init(frame: self.bounds, style: self.style)
         tableView.separatorStyle = .none
         tableView.backgroundColor = UIColor.clear
