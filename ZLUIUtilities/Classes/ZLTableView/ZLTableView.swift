@@ -22,7 +22,7 @@ public protocol ZLTableContainerViewDelegate: AnyObject {
 public class ZLTableContainerView: UIView {
     
     // viewModel
-    private var sectionDatas: [ZLTableViewSectionProtocol] = []
+    private var viewData: ZLTableViewData = ZLTableViewData()
     
     private var style: UITableView.Style = .grouped
     
@@ -53,10 +53,12 @@ public class ZLTableContainerView: UIView {
     
     public override func tintColorDidChange() {
         // appearence mode 改变
-        for sectionData in sectionDatas {
+        for sectionData in viewData.sectionDatas {
             for cellData in sectionData.cellDatas {
                 cellData.clearCache()
             }
+            sectionData.sectionFooterViewData?.clearCache()
+            sectionData.sectionHeaderViewData?.clearCache()
         }
         tableView.reloadData()
     }
@@ -83,60 +85,65 @@ public class ZLTableContainerView: UIView {
 // MARK: UITableViewDelegate
 extension ZLTableContainerView: UITableViewDelegate {
     
+    func sectionDataForSection(_ section: Int) -> ZLTableViewSectionDataProtocol? {
+        viewData.sectionDataFor(section: section)
+    }
+    
+    func cellDataForIndexPath(_ indexPath: IndexPath) -> ZLTableViewCellDataProtocol? {
+        let sectionData = viewData.sectionDataFor(section: indexPath.section)
+        return sectionData?.cellDataFor(row: indexPath.row)
+    }
+    
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        sectionDatas[indexPath.section].cellDatas[indexPath.row].cellHeight
+        cellDataForIndexPath(indexPath)?.cellHeight ?? UITableView.automaticDimension
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let tableViewCellData = sectionDatas[indexPath.section].cellDatas[indexPath.row]
-        tableViewCellData.onCellSingleTap()
+        cellDataForIndexPath(indexPath)?.onCellSingleTap()
     }
 
     public func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let tableViewCellData = sectionDatas[indexPath.section].cellDatas[indexPath.row]
-        return tableViewCellData.cellSwipeActions
+        cellDataForIndexPath(indexPath)?.cellSwipeActions
     }
     
     
     // Section
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        sectionDatas[section].sectionHeaderHeight
+        sectionDataForSection(section)?.sectionHeaderViewData?.sectionViewHeight ?? CGFloat.leastNonzeroMagnitude
     }
 
     public func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        sectionDatas[section].sectionFooterHeight
+        sectionDataForSection(section)?.sectionFooterViewData?.sectionViewHeight ?? CGFloat.leastNonzeroMagnitude
     }
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if let reuseIdentifier = sectionDatas[section].sectionHeaderReuseIdentifier {
-            let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier)
-            if let updatable = view as? ZLViewUpdatable {
-               
-                let data = sectionDatas[section]
-                updatable.fillWithData(data: data)
-                
-                if let updatableData = data as? ZLViewUpdatableDataModel {
-                    updatableData.setViewUpdatable(updatable)
-                }
-            }
+        guard let sectionData = sectionDataForSection(section),
+              let sectionHeaderData = sectionData.sectionHeaderViewData else {
+            return nil
         }
-        return nil
+        let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: sectionHeaderData.sectionViewReuseIdentifier)
+        sectionHeaderData.numberOfSection = viewData.numberOfSections()
+        sectionHeaderData.section = section
+        sectionHeaderData.isHeader = true
+        if let updatable = view as? ZLViewUpdatable {
+            updatable.fillWithData(data: sectionHeaderData)
+        }
+        return view
     }
 
     public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        if let reuseIdentifier = sectionDatas[section].sectionFooterReuseIdentifier {
-            let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier)
-            if let updatable = view as? ZLViewUpdatable {
-                
-                let data = sectionDatas[section]
-                updatable.fillWithData(data: data)
-                
-                if let updatableData = data as? ZLViewUpdatableDataModel {
-                    updatableData.setViewUpdatable(updatable)
-                }
-            }
+        guard let sectionData = sectionDataForSection(section),
+              let sectionFooterData = sectionData.sectionFooterViewData else {
+            return nil
         }
-        return nil
+        let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: sectionFooterData.sectionViewReuseIdentifier)
+        sectionFooterData.numberOfSection = viewData.numberOfSections()
+        sectionFooterData.section = section
+        sectionFooterData.isHeader = false
+        if let updatable = view as? ZLViewUpdatable {
+            updatable.fillWithData(data: sectionFooterData)
+        }
+        return view
     }
 }
 
@@ -144,28 +151,25 @@ extension ZLTableContainerView: UITableViewDelegate {
 extension ZLTableContainerView: UITableViewDataSource {
     
     public func numberOfSections(in tableView: UITableView) -> Int {
-        return sectionDatas.count
+        viewData.numberOfSections()
     }
     
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return sectionDatas[section].cellDatas.count
+        sectionDataForSection(section)?.numberOfCellsInSection() ?? 0
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let tableViewCellData = sectionDatas[indexPath.section].cellDatas[indexPath.row]
-        tableViewCellData.setCellIndexPath(indexPath: indexPath)
-
-        let tableViewCell = tableView.dequeueReusableCell(withIdentifier: tableViewCellData.cellReuseIdentifier, for: indexPath)
-
-        if let updatable = tableViewCell as? ZLViewUpdatable {
-            updatable.fillWithData(data: tableViewCellData)
-            
-            if let updatableData = tableViewCellData as? ZLViewUpdatableDataModel {
-                updatableData.setViewUpdatable(updatable)
-            }
+        guard let cellData = cellDataForIndexPath(indexPath),
+              let cell = tableView.dequeueReusableCell(withIdentifier: cellData.cellReuseIdentifier) else {
+            return UITableViewCell()
         }
-        return tableViewCell
+        cellData.indexPath = indexPath
+        
+        if let updatable = cell as? ZLViewUpdatable {
+            updatable.fillWithData(data: cellData)
+        }
+        return cell
     }
   
 }
@@ -215,9 +219,9 @@ public extension ZLTableContainerView {
     }
     
     
-    func resetSectionDatas(sectionDatas: [ZLTableViewSectionProtocol], hasMoreData: Bool) {
-        
-        self.sectionDatas = sectionDatas
+    func resetSectionDatas(sectionDatas: [ZLTableViewSectionDataProtocol], hasMoreData: Bool) {
+    
+        viewData.sectionDatas = sectionDatas
         
         endRefreshView(type: .header)
         if !hasMoreData {
@@ -227,19 +231,19 @@ public extension ZLTableContainerView {
             endRefreshView(type: .footer)
         }
         
-        if sectionDatas.isEmpty {
+        if viewData.isEmpty {
             hiddenRefreshView(type: .footer)
         } else {
             showRefreshView(type: .footer)
         }
-        viewStatus = sectionDatas.isEmpty ? .empty : .normal
+        viewStatus = viewData.isEmpty ? .empty : .normal
         
         tableView.reloadData()
     }
     
-    func appendSectionDatas(sectionDatas: [ZLTableViewSectionProtocol], hasMoreData: Bool) {
+    func appendSectionDatas(sectionDatas: [ZLTableViewSectionDataProtocol], hasMoreData: Bool) {
         
-        self.sectionDatas.append(contentsOf: sectionDatas)
+        self.viewData.sectionDatas.append(contentsOf: sectionDatas)
         
         if !hasMoreData {
             endRefreshFooterWithNoMoreData()
@@ -247,22 +251,25 @@ public extension ZLTableContainerView {
             endRefreshView(type: .footer)
         }
         
-        if sectionDatas.isEmpty {
+        if viewData.isEmpty {
             hiddenRefreshView(type: .footer)
         } else {
             showRefreshView(type: .footer)
         }
-        viewStatus = sectionDatas.isEmpty ? .empty : .normal
+        viewStatus = viewData.isEmpty ? .empty : .normal
         
         self.tableView.reloadData()
     }
     
     
-    func resetCellDatas(cellDatas: [ZLTableViewCellProtocol], hasMoreData: Bool) {
-        if !cellDatas.isEmpty {
-            sectionDatas = [ZLTableViewBaseSectionData(cellDatas: cellDatas)]
+    func resetCellDatas(cellDatas: [ZLTableViewCellDataProtocol], hasMoreData: Bool) {
+        
+        if let sectionData = viewData.sectionDatas.first {
+            sectionData.cellDatas = cellDatas
         } else {
-            sectionDatas = []
+           let sectionData = ZLTableViewBaseSectionData()
+            sectionData.cellDatas = cellDatas
+            viewData.sectionDatas = [sectionData]
         }
         
         endRefreshView(type: .header)
@@ -273,22 +280,24 @@ public extension ZLTableContainerView {
             endRefreshView(type: .footer)
         }
     
-        if sectionDatas.isEmpty {
+        if viewData.isEmpty {
             hiddenRefreshView(type: .footer)
         } else {
             showRefreshView(type: .footer)
         }
-        viewStatus = sectionDatas.isEmpty ? .empty : .normal
+        viewStatus = viewData.isEmpty ? .empty : .normal
         
         tableView.reloadData()
     }
 
-    func appendCellDatas(cellDatas: [ZLTableViewCellProtocol], hasMoreData: Bool) {
+    func appendCellDatas(cellDatas: [ZLTableViewCellDataProtocol], hasMoreData: Bool) {
         
-        if let section = sectionDatas.first {
-            section.appendCellDatas(cellDatas: cellDatas)
+        if let sectionData = viewData.sectionDatas.first {
+            sectionData.cellDatas.append(contentsOf: cellDatas)
         } else {
-            sectionDatas = [ZLTableViewBaseSectionData(cellDatas: cellDatas)]
+            let sectionData = ZLTableViewBaseSectionData()
+            sectionData.cellDatas = cellDatas
+            viewData.sectionDatas = [sectionData]
         }
         
         if !hasMoreData {
@@ -298,12 +307,12 @@ public extension ZLTableContainerView {
         }
         
             
-        if sectionDatas.isEmpty {
+        if viewData.isEmpty {
             hiddenRefreshView(type: .footer)
         } else {
             showRefreshView(type: .footer)
         }
-        viewStatus = sectionDatas.isEmpty ? .empty : .normal
+        viewStatus = viewData.isEmpty ? .empty : .normal
         
         self.tableView.reloadData()
     }
@@ -313,7 +322,7 @@ public extension ZLTableContainerView {
     }
 
     func clearListView() {
-        self.sectionDatas.removeAll()
+        self.viewData = ZLTableViewData()
         self.tableView.reloadData()
     }
 
@@ -330,12 +339,12 @@ public extension ZLTableContainerView {
         endRefreshView(type: .header)
         endRefreshView(type: .footer)
         
-        if sectionDatas.isEmpty {
+        if viewData.numberOfSections() == 0 {
             hiddenRefreshView(type: .footer)
         } else {
             showRefreshView(type: .footer)
         }
-        viewStatus = sectionDatas.isEmpty ? .empty : .normal
+        viewStatus = viewData.numberOfSections() == 0 ? .empty : .normal
     }
 
     func justRefresh() {
@@ -366,5 +375,4 @@ public extension ZLTableContainerView {
             tableView.tableHeaderView = newValue
         }
     }
-    
 }
