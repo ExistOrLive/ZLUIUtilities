@@ -41,6 +41,8 @@ TODO: Add long description of the pod here.
   s.dependency 'ZLBaseUI'
 
   s.dependency 'ZLBaseExtension'
+  
+  s.dependency 'ZLUtilities'
 
   # 刷新控件
   s.dependency 'MJRefresh'

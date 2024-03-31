@@ -16,6 +16,13 @@ import SnapKit
 public protocol ZLTableContainerViewDelegate: AnyObject {
     func zlLoadNewData()
     func zlLoadMoreData()
+    func zlScrollViewDidScroll(_ scrollView: UIScrollView)
+}
+
+public extension ZLTableContainerViewDelegate {
+    func zlLoadNewData() { }
+    func zlLoadMoreData() { }
+    func zlScrollViewDidScroll(_ scrollView: UIScrollView) { }
 }
 
 
@@ -144,6 +151,10 @@ extension ZLTableContainerView: UITableViewDelegate {
             updatable.fillWithData(data: sectionFooterData)
         }
         return view
+    }
+    
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        delegate?.zlScrollViewDidScroll(scrollView)
     }
 }
 
