@@ -179,7 +179,14 @@ extension ZLTableContainerView: UITableViewDataSource {
         
         if let updatable = cell as? ZLViewUpdatable {
             updatable.fillWithData(data: cellData)
+            
+            if let cellData = cellData as? ZLViewUpdatableDataModel {
+                cellData.setViewUpdatable(updatable)
+            }
         }
+        
+        
+        
         return cell
     }
   
