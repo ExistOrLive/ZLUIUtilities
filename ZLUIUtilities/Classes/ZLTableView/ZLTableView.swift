@@ -58,18 +58,24 @@ public class ZLTableContainerView: UIView {
         }
     }
     
-    public override func tintColorDidChange() {
-        // appearence mode 改变
-        for sectionData in viewData.sectionDatas {
-            for cellData in sectionData.cellDatas {
-                cellData.clearCache()
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        // 外观模式切换
+        super.traitCollectionDidChange(previousTraitCollection)
+        if #available(iOS 13.0, *) {
+            if self.traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+                
+                for sectionData in viewData.sectionDatas {
+                    for cellData in sectionData.cellDatas {
+                        cellData.clearCache()
+                    }
+                    sectionData.sectionFooterViewData?.clearCache()
+                    sectionData.sectionHeaderViewData?.clearCache()
+                }
+                tableView.reloadData()
             }
-            sectionData.sectionFooterViewData?.clearCache()
-            sectionData.sectionHeaderViewData?.clearCache()
         }
-        tableView.reloadData()
     }
-
+    
     // view
     public private(set) lazy var tableView: UITableView = {
         let tableView = UITableView.init(frame: self.bounds, style: self.style)
@@ -372,6 +378,33 @@ public extension ZLTableContainerView {
 
     func reloadData() {
         self.tableView.reloadData()
+    }
+    
+    func reloadDataWith(sectionIds: [String], animation: UITableView.RowAnimation = .none) {
+        let sectionIndexes = viewData.sectionDatas.enumerated().compactMap { (index, sectionData) in
+            if sectionIds.contains(sectionData.sectionId) {
+                return index
+            }
+            return nil
+        }
+        if !sectionIndexes.isEmpty {
+            self.tableView.reloadSections(IndexSet(sectionIndexes), with: animation)
+        }
+    }
+    
+    func reloadDataWith(rowIds: [(String,String)], animation: UITableView.RowAnimation = .none) {
+        let indexPaths = rowIds.compactMap { (sectionId,rowId) in
+            if let sectionIndex = viewData.sectionDatas.firstIndex(where: { $0.sectionId == sectionId }) {
+                if let rowIndex = viewData.sectionDatas[sectionIndex].cellDatas.firstIndex(where: { $0.cellId == rowId }) {
+                    return IndexPath(row: rowIndex, section: sectionIndex)
+                }
+            }
+            return nil
+        }
+      
+        if !indexPaths.isEmpty {
+            self.tableView.reloadRows(at: indexPaths, with: animation)
+        }
     }
     
     var tableViewFooter: UIView? {
