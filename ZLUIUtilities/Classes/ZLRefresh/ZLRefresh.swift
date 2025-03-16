@@ -25,11 +25,30 @@ public protocol ZLRefreshProtocol: NSObjectProtocol {
 
 public extension ZLRefreshProtocol {
    
+    func setRefreshViews(types: [ZLRefreshViewType]) {
+        types.forEach {
+            setRefreshView(type: $0)
+        }
+    }
+    
+    func endRefreshViews(noMoreData: Bool? = nil) {
+        endRefreshView(type: .footer)
+        endRefreshView(type: .header)
+        if let noMoreData   {
+            if noMoreData {
+                hiddenRefreshView(type: .footer)
+            } else {
+                showRefreshView(type: .footer)
+            }
+        }
+    }
+    
     func setRefreshView(type: ZLRefreshViewType) {
         if type == .footer {
             scrollView.mj_footer = ZLRefresh.refreshFooter { [weak self] in
                 self?.refreshLoadMoreData()
             }
+            scrollView.mj_footer?.isHidden = true
         } else if type == .header {
             scrollView.mj_header = ZLRefresh.refreshHeader { [weak self] in
                 self?.refreshLoadNewData()

@@ -9,7 +9,6 @@
 import Foundation
 import UIKit
 import ZLBaseExtension
-import ZLBaseUI
 
 @objc public enum ZLViewStatus: Int {
     case loading = 0
@@ -39,9 +38,14 @@ public extension ZLViewStatusProtocol where Self: UIViewController {
     var targetView: UIView { self.view }
 }
 
-// MARK: ZLViewStatusProtocol + ZLBaseViewController
-public extension ZLViewStatusProtocol where Self: ZLBaseViewController {
+// MARK: ZLViewStatusProtocol + ZMViewController
+public extension ZLViewStatusProtocol where Self: ZMViewController {
     var targetView: UIView { self.contentView }
+}
+
+// MARK: ZLViewStatusProtocol + ZM
+public extension ZLViewStatusProtocol where Self: ZMTableViewController {
+    var targetView: UIView { self.tableView }
 }
 
 

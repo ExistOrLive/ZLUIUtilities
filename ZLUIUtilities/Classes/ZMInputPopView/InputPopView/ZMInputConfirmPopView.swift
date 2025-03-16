@@ -9,7 +9,6 @@ import Foundation
 import ZLBaseExtension
 import SnapKit
 import UIKit
-import ZLBaseUI
 
 public protocol ZMInputConfirmPopViewDelegate: AnyObject {
     func inputConfirmPopViewWillConfirm(_ box: ZMInputConfirmPopView) -> Bool
@@ -142,7 +141,7 @@ open class ZMInputConfirmPopView: ZMInputPopView {
     }()
     
     @objc public dynamic lazy var resetButton: UIButton = {
-        let button = ZLBaseButton()
+        let button = ZMButton()
         button.setTitle("重置", for: .normal)
         button.titleLabel?.font = .zlMediumFont(withSize: 16)
         button.addTarget(self, action: #selector(onResetButtonClicked), for: .touchUpInside)
@@ -150,7 +149,7 @@ open class ZMInputConfirmPopView: ZMInputPopView {
     }()
     
     @objc public dynamic lazy var confirmButton: UIButton = {
-        let button = ZLBaseButton()
+        let button = ZMButton()
         button.setTitle("确定", for: .normal)
         button.titleLabel?.font = .zlMediumFont(withSize: 16)
         button.addTarget(self, action: #selector(onConfirmButtonClicked), for: .touchUpInside)

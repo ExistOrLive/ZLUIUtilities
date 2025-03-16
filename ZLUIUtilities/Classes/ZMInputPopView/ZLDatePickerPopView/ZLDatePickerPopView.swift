@@ -8,7 +8,6 @@
 
 import Foundation
 import ZLBaseExtension
-import ZLBaseUI
 
 @objc public enum ZMDateComponentType: Int {
   case year = 0
@@ -150,7 +149,7 @@ public class ZMDatePickerPopView: ZMPopContainerView {
     public var confirmBlock: ((Date) -> Void)?
 
     private let title: String
-    private let viewModel: ZMDatePickerViewModel
+    private let viewData: ZMDatePickerViewModel
     private let dateComponentTypes: [ZMDateComponentType] = [.year,.month,.day]
     private let contentSize: CGSize
     
@@ -161,7 +160,7 @@ public class ZMDatePickerPopView: ZMPopContainerView {
                 currentDate: Date? = nil) {
         self.title = title
         self.contentSize = contentSize
-        self.viewModel = ZMDatePickerViewModel(startDate: startDate,
+        self.viewData = ZMDatePickerViewModel(startDate: startDate,
                                                endDate: endDate,
                                                currentDate: currentDate)
         super.init(frame: .zero)
@@ -206,17 +205,17 @@ public class ZMDatePickerPopView: ZMPopContainerView {
             make.height.equalTo(40)
         }
         
-        if let selectedIndedx = viewModel.days.firstIndex(of: viewModel.currentDay),
+        if let selectedIndedx = viewData.days.firstIndex(of: viewData.currentDay),
            let componentIndex = dateComponentTypes.firstIndex(of: .day) {
             pickerView.selectRow(selectedIndedx, inComponent: componentIndex, animated: false)
         }
         
-        if let selectedIndedx = viewModel.months.firstIndex(of: viewModel.currentMonth),
+        if let selectedIndedx = viewData.months.firstIndex(of: viewData.currentMonth),
            let componentIndex = dateComponentTypes.firstIndex(of: .month) {
             pickerView.selectRow(selectedIndedx, inComponent: componentIndex, animated: false)
         }
         
-        if let selectedIndedx = viewModel.years.firstIndex(of: viewModel.currentYear),
+        if let selectedIndedx = viewData.years.firstIndex(of: viewData.currentYear),
            let componentIndex = dateComponentTypes.firstIndex(of: .year) {
             pickerView.selectRow(selectedIndedx, inComponent: componentIndex, animated: false)
         }
@@ -267,7 +266,7 @@ public class ZMDatePickerPopView: ZMPopContainerView {
     }()
     
     public lazy var confirmButton: UIButton = {
-        let button = ZLBaseButton()
+        let button = ZMButton()
         button.setTitle("确定", for: .normal)
         button.titleLabel?.font = .zlMediumFont(withSize: 16)
         button.addTarget(self, action: #selector(onConfirmButtonClicked), for: .touchUpInside)
@@ -279,8 +278,8 @@ public class ZMDatePickerPopView: ZMPopContainerView {
 public extension ZMDatePickerPopView {
     
     @objc func onConfirmButtonClicked() {
-        delegate?.zmDatePickerPopViewDidConfirm(date: viewModel.currentDate)
-        confirmBlock?(viewModel.currentDate)
+        delegate?.zmDatePickerPopViewDidConfirm(date: viewData.currentDate)
+        confirmBlock?(viewData.currentDate)
         self.dismiss()
     }
 }
@@ -296,11 +295,11 @@ extension ZMDatePickerPopView: UIPickerViewDataSource,UIPickerViewDelegate  {
         let componentType = dateComponentTypes[component]
         switch componentType {
         case .year:
-            return viewModel.years.count
+            return viewData.years.count
         case .month:
-            return viewModel.months.count
+            return viewData.months.count
         case .day:
-            return viewModel.days.count
+            return viewData.days.count
         }
     }
     
@@ -308,13 +307,13 @@ extension ZMDatePickerPopView: UIPickerViewDataSource,UIPickerViewDelegate  {
         let componentType = dateComponentTypes[component]
         switch componentType {
         case .year:
-            let year = viewModel.years[row]
+            let year = viewData.years[row]
             return String(year)
         case .month:
-            let month = viewModel.months[row]
+            let month = viewData.months[row]
             return String(format: "%02d", month)
         case .day:
-            let day = viewModel.days[row]
+            let day = viewData.days[row]
             return String(format: "%02d", day)
         }
     }
@@ -324,31 +323,31 @@ extension ZMDatePickerPopView: UIPickerViewDataSource,UIPickerViewDelegate  {
         var componentValue = 0
         switch componentType {
         case .year:
-            componentValue = viewModel.years[row]
+            componentValue = viewData.years[row]
         case .month:
-            componentValue = viewModel.months[row]
+            componentValue = viewData.months[row]
         case .day:
-            componentValue = viewModel.days[row]
+            componentValue = viewData.days[row]
         }
-        viewModel.changeDateItem(item: componentValue, itemType: componentType)
+        viewData.changeDateItem(item: componentValue, itemType: componentType)
         pickerView.reloadAllComponents()
         
-        if let selectedIndedx = viewModel.days.firstIndex(of: viewModel.currentDay),
+        if let selectedIndedx = viewData.days.firstIndex(of: viewData.currentDay),
            let componentIndex = dateComponentTypes.firstIndex(of: .day) {
             pickerView.selectRow(selectedIndedx, inComponent: componentIndex, animated: false)
         }
         
-        if let selectedIndedx = viewModel.months.firstIndex(of: viewModel.currentMonth),
+        if let selectedIndedx = viewData.months.firstIndex(of: viewData.currentMonth),
            let componentIndex = dateComponentTypes.firstIndex(of: .month) {
             pickerView.selectRow(selectedIndedx, inComponent: componentIndex, animated: false)
         }
         
-        if let selectedIndedx = viewModel.years.firstIndex(of: viewModel.currentYear),
+        if let selectedIndedx = viewData.years.firstIndex(of: viewData.currentYear),
            let componentIndex = dateComponentTypes.firstIndex(of: .year) {
             pickerView.selectRow(selectedIndedx, inComponent: componentIndex, animated: false)
         }
         
-        delegate?.zmDatePickerPopViewDidSelect(date: viewModel.currentDate)
+        delegate?.zmDatePickerPopViewDidSelect(date: viewData.currentDate)
     }
 }
 
