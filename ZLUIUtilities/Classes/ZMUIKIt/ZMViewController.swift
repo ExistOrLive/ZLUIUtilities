@@ -88,4 +88,9 @@ open class ZMViewController: ZMBaseViewController, ZLViewStatusProtocol {
             dismiss(animated: true)
         }
     }
+    
+    // MARK: ViewStatus
+    open var targetView: UIView {
+        contentView
+    }
 }

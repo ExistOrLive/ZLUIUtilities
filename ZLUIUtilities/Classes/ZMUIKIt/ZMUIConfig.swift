@@ -9,27 +9,27 @@ import Foundation
 import UIKit
 import ZLBaseExtension
 
-public class ZMUIConfig: NSObject {
+@objc public class ZMUIConfig: NSObject {
     
     // MARK: - 导航栏相关
-    public var navigationBarBackgoundColor: UIColor
-    public var navigationBarTitleColor: UIColor
-    public var navigationBarTitleFont: UIFont
-    public var navigationBarHeight: CGFloat
+    @objc public var navigationBarBackgoundColor: UIColor
+    @objc public var navigationBarTitleColor: UIColor
+    @objc public var navigationBarTitleFont: UIFont
+    @objc public var navigationBarHeight: CGFloat
     
     // MARK: - 视图控制器背景
-    public var viewControllerBackgoundColor: UIColor
+    @objc public var viewControllerBackgoundColor: UIColor
     
     // MARK: - 按钮相关
-    public var buttonBorderColor: UIColor
-    public var buttonBackColor: UIColor
-    public var buttonTitleColor: UIColor
-    public var buttonTitleFont: UIFont
-    public var buttonCornerRadius: CGFloat
-    public var buttonBorderWidth: CGFloat
+    @objc public var buttonBorderColor: UIColor
+    @objc public var buttonBackColor: UIColor
+    @objc public var buttonTitleColor: UIColor
+    @objc public var buttonTitleFont: UIFont
+    @objc public var buttonCornerRadius: CGFloat
+    @objc public var buttonBorderWidth: CGFloat
     
     // MARK: - 单例
-    public static let shared = ZMUIConfig()
+    @objc public static let shared = ZMUIConfig()
     
     private override init() {
 

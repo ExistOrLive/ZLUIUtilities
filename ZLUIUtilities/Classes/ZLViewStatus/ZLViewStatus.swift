@@ -38,16 +38,6 @@ public extension ZLViewStatusProtocol where Self: UIViewController {
     var targetView: UIView { self.view }
 }
 
-// MARK: ZLViewStatusProtocol + ZMViewController
-public extension ZLViewStatusProtocol where Self: ZMViewController {
-    var targetView: UIView { self.contentView }
-}
-
-// MARK: ZLViewStatusProtocol + ZM
-public extension ZLViewStatusProtocol where Self: ZMTableViewController {
-    var targetView: UIView { self.tableView }
-}
-
 
 // MARK: ZLViewStatusProtocol Extension
 public extension ZLViewStatusProtocol {

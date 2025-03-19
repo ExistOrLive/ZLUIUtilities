@@ -61,4 +61,9 @@ open class ZMTableViewController: ZMViewController, ZMBaseTableViewContainerProt
     open func refreshLoadMoreData() {
         
     }
+    
+    // MARK: ViewStatus
+    open override var targetView: UIView {
+        tableView
+    }
 }
