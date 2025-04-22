@@ -19,14 +19,16 @@ import MBProgressHUD
         self.dismiss(view: nil, animated: true)
     }
     
-    public class func show(view: UIView?, animated: Bool) {
+    @discardableResult
+    public class func show(view: UIView?, animated: Bool) -> MBProgressHUD? {
         if let view = view {
-            MBProgressHUD.showAdded(to: view, animated: animated)
+           return MBProgressHUD.showAdded(to: view, animated: animated)
         } else {
             if let window = UIApplication.shared.keyWindow {
-                MBProgressHUD.showAdded(to: window, animated: animated)
+                return MBProgressHUD.showAdded(to: window, animated: animated)
             }
         }
+        return nil
     }
     
     public class func dismiss(view: UIView?, animated: Bool) {
@@ -39,6 +41,10 @@ import MBProgressHUD
         }
     }
 
+    public class func dismiss(hud: MBProgressHUD?, animated: Bool) {
+        hud?.removeFromSuperViewOnHide = true
+        hud?.hide(animated: animated)
+    }
 }
 
 // MARK: ProgressHUD
