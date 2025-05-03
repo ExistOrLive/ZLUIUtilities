@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ZLUIUtilities'
-  s.version          = '0.1.0'
+  s.version          = '1.3.0'
   s.summary          = 'A short description of ZLUIUtilities.'
 
 # This description is used to generate tags and improve search results.
@@ -31,6 +31,7 @@ TODO: Add long description of the pod here.
   s.ios.deployment_target = '11.0'
 
   s.source_files = 'ZLUIUtilities/Classes/**/*'
+  s.resource_bundle = {"ZLUIUtilities.privacy"=>"Pod/Privacy/ZLUIUtilities/PrivacyInfo.xcprivacy"}
   
   # s.resource_bundles = {
   #   'ZLUIUtilities' => ['ZLUIUtilities/Assets/*.png']
@@ -50,7 +51,7 @@ TODO: Add long description of the pod here.
   # 转圈控件
   s.dependency 'MBProgressHUD'
   # ToastView https://github.com/scalessec/Toast-Swift
-  s.dependency 'Toast'
+  s.dependency 'Toast-Swift'
   
   s.dependency 'SnapKit'
 end

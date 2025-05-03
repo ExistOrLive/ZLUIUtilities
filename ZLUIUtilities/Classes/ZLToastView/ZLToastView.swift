@@ -7,26 +7,26 @@
 //
 
 import UIKit
-import Toast
+import Toast_Swift
 
 @objcMembers public class ZLToastView: NSObject {
     
     public class func showMessage(_ message: String) {
         let window = UIApplication.shared.keyWindow
-        window?.makeToast(message, duration: 3.0, position: CSToastPositionCenter)
+        window?.makeToast(message, duration: 3.0, position: .center)
     }
     
     public class func showMessage(_ message: String, duration: TimeInterval) {
         let window = UIApplication.shared.keyWindow
-        window?.makeToast(message, duration: duration, position: CSToastPositionCenter)
+        window?.makeToast(message, duration: duration, position: .center)
     }
     
     public class func showMessage(_ message: String, duration: TimeInterval, sourceView: UIView?) {
-        sourceView?.makeToast(message, duration: duration, position: CSToastPositionCenter)
+        sourceView?.makeToast(message, duration: duration, position: .center)
     }
     
     public class func showMessage(_ message: String, sourceView: UIView?) {
-        sourceView?.makeToast(message, duration: 3.0, position: CSToastPositionCenter)
+        sourceView?.makeToast(message, duration: 3.0, position: .center)
     }
 
 }
