@@ -9,13 +9,14 @@ import Foundation
 import ZMMVVM
 import UIKit
 
-open class ZMTableViewController: ZMViewController, ZMBaseTableViewContainerProtocol, ZLRefreshProtocol {
+open class ZMTableViewController: ZMViewController, ZMBaseTableViewContainerProtocol, ZLRefreshProtocol, ZMBaseTableViewProxyDelegate {
     
     public let tableViewProxy: ZMBaseTableViewProxy
     
     public init(style: UITableView.Style = .grouped) {
         self.tableViewProxy = ZMBaseTableViewProxy(style: style)
         super.init(nibName: nil, bundle: nil)
+        self.tableViewProxy.delegate = self 
     }
     
     required public init?(coder: NSCoder) {
@@ -66,4 +67,10 @@ open class ZMTableViewController: ZMViewController, ZMBaseTableViewContainerProt
     open override var targetView: UIView {
         tableView
     }
+    
+    // MARK: ZMBaseTableViewProxyDelegate
+    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+    }
 }
+
